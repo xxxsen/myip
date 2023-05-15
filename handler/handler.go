@@ -25,8 +25,10 @@ func HandleGetIPJson(hs []string) http.HandlerFunc {
 	}
 }
 
-func findIP(headers []string, r *http.Request) string {
-	var ip string
+func findIP(headers []string, r *http.Request) (ip string) {
+	defer func() {
+		ip = strings.TrimSpace(ip)
+	}()
 	for _, h := range headers {
 		ip = r.Header.Get(h)
 		if len(ip) > 0 {
