@@ -14,4 +14,4 @@ RUN apk --no-cache add ca-certificates
 
 EXPOSE 5578
 
-CMD ["/bin/myip", "--bind", ":5578"]
+ENTRYPOINT ["/bin/myip"]

@@ -10,6 +10,7 @@ import (
 
 var bind = flag.String("bind", ":5578", "bind address")
 var header = flag.String("use_headers", "X-real-IP", "specify ip header")
+var enableDebug = flag.Bool("enable_debug", false, "enable debug")
 
 func main() {
 	flag.Parse()
@@ -20,7 +21,9 @@ func main() {
 	}
 
 	http.HandleFunc("/", handler.HandleGetIP(headers))
-	http.HandleFunc("/debug", handler.HandleDebug)
+	if *enableDebug {
+		http.HandleFunc("/debug", handler.HandleDebug)
+	}
 	http.HandleFunc("/json", handler.HandleGetIPJson(headers))
 
 	log.Printf("Server bind on %s", *bind)
