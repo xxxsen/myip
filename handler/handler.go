@@ -58,5 +58,6 @@ func renderJson(w http.ResponseWriter, ip string) {
 		IP: ip,
 	}
 	raw, _ := json.Marshal(m)
+	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(raw)
 }
