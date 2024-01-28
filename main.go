@@ -15,7 +15,7 @@ var enableDebug = flag.Bool("enable_debug", false, "enable debug")
 func main() {
 	flag.Parse()
 
-	headers := strings.Split(*header, ";")
+	headers := strings.Split(*header, ",")
 	if len(headers) == 0 {
 		panic("no valid headers found")
 	}
