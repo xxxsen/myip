@@ -2,7 +2,7 @@ module myip
 
 go 1.24
 
-require github.com/xxxsen/common v0.1.22
+require github.com/xxxsen/common v0.1.23
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
