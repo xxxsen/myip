@@ -1,4 +1,4 @@
-FROM golang:1.15.2-buster
+FROM golang:1.24
 
 COPY . /myip 
 
@@ -6,7 +6,7 @@ WORKDIR /myip
 
 RUN CGO_ENABLED=0 go build -a -tags netgo -ldflags '-w' -o myip 
 
-FROM alpine:3.12
+FROM alpine:3.20
 
 COPY --from=0 /myip/myip /bin/
 

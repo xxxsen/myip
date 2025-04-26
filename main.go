@@ -3,32 +3,35 @@ package main
 import (
 	"flag"
 	"log"
+	"myip/config"
 	"myip/handler"
-	"net/http"
-	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/xxxsen/common/logger"
+	"github.com/xxxsen/common/webapi"
+	"go.uber.org/zap"
 )
 
-var bind = flag.String("bind", ":5578", "bind address")
-var header = flag.String("use_headers", "X-real-IP", "specify ip header")
-var enableDebug = flag.Bool("enable_debug", false, "enable debug")
+var (
+	conf = flag.String("config", "./config.json", "config file path")
+)
 
 func main() {
 	flag.Parse()
-
-	headers := strings.Split(*header, ",")
-	if len(headers) == 0 {
-		panic("no valid headers found")
-	}
-
-	http.HandleFunc("/", handler.HandleGetIP(headers))
-	if *enableDebug {
-		http.HandleFunc("/debug", handler.HandleDebug)
-	}
-	http.HandleFunc("/json", handler.HandleGetIPJson(headers))
-
-	log.Printf("Server bind on %s", *bind)
-	err := http.ListenAndServe(*bind, nil)
+	cc, err := config.Parse(*conf)
 	if err != nil {
-		log.Fatalf("Bind ipaddr fail, ip:%s, err:%v", *bind, err)
+		log.Fatalf("read config file fail, path:%s, err:%v", *conf, err)
+	}
+	logkit := logger.Init(cc.LogConfig.File, cc.LogConfig.Level, int(cc.LogConfig.FileCount), int(cc.LogConfig.FileSize), int(cc.LogConfig.KeepDays), cc.LogConfig.Console)
+	logkit.Info("read config succ", zap.Any("config", *cc))
+	iph := handler.NewIPHandler(cc.Headers)
+	engine, err := webapi.NewEngine("/", cc.Bind, webapi.WithRegister(func(c *gin.RouterGroup) {
+		c.GET("/", iph.HandleGetIP)
+	}))
+	if err != nil {
+		logkit.Fatal("create webapi engine fail", zap.Error(err))
+	}
+	if err := engine.Run(); err != nil {
+		logkit.Fatal("run webapi engine fail", zap.Error(err))
 	}
 }
